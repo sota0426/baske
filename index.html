@@ -192,7 +192,9 @@
     object-fit: cover;
     object-position: center top;
     filter: brightness(0.32) saturate(0.6);
-    /* ★ pan アニメを長めに：イントロ全体（13s）に合わせる */
+    transform: scale(1.1);
+  }
+  .intro-running .intro-photo {
     animation: introPan 13s ease forwards;
   }
   .intro-overlay {
@@ -236,27 +238,11 @@
     padding: 0 32px; width: 100%; max-width: 560px; opacity: 0;
   }
 
-  /*
-   * ★ タイミング修正
-   *
-   * msg-1: delay=0.8s, duration=5.5s
-   *   → フェードイン: 0.8s〜1.5s（0.7s）
-   *   → 表示キープ:   1.5s〜5.3s
-   *   → フェードアウト: 5.3s〜6.3s（1.0s）
-   *   → 終了: 0.8+5.5 = 6.3s
-   *
-   * msg-2: delay=6.0s, duration=6.5s
-   *   → フェードイン: 6.0s〜6.8s（0.8s）★ msg-1終了(6.3s)と0.3s重なる→自然なクロス
-   *   → 表示キープ:   6.8s〜11.5s
-   *   → フェードアウト: 11.5s〜12.5s（1.0s）
-   *   → 終了: 6.0+6.5 = 12.5s
-   *
-   * イントロ自動終了: JS側で 13000ms 後 → 余裕をもって消える
-   */
-  .intro-msg-1 {
+  /* デフォルトはアニメーションなし。intro-running クラスが付いたら動く */
+  .intro-running .intro-msg-1 {
     animation: msg1Anim 5.5s ease 0.8s forwards;
   }
-  .intro-msg-2 {
+  .intro-running .intro-msg-2 {
     animation: msg2Anim 6.5s ease 6.0s forwards;
   }
 
@@ -636,9 +622,10 @@
     tapEl.classList.add('hidden');
     setTimeout(() => { tapEl.style.display = 'none'; }, 900);
 
-    // イントロ表示（少し待ってフェードイン）
+    // イントロ表示（少し待ってフェードイン）＋同時にアニメ開始
     setTimeout(() => {
       introEl.classList.add('active');
+      introEl.classList.add('intro-running'); // ← ここで初めてアニメ開始
     }, 400);
 
     /*
