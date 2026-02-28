@@ -43,7 +43,6 @@
     pointer-events: none;
   }
 
-  /* 背景：集合写真うっすら */
   .tap-bg {
     position: absolute;
     inset: 0;
@@ -60,7 +59,6 @@
       var(--navy) 100%);
   }
 
-  /* コンテンツ */
   .tap-content {
     position: relative;
     z-index: 2;
@@ -72,7 +70,6 @@
     gap: 0;
   }
 
-  /* バスケボールアイコン（パルスアニメ） */
   .tap-ball {
     font-size: 52px;
     margin-bottom: 32px;
@@ -80,7 +77,6 @@
     filter: drop-shadow(0 8px 24px rgba(232,93,38,0.4));
   }
 
-  /* サブタイトル */
   .tap-eyebrow {
     font-size: 10px;
     letter-spacing: 0.4em;
@@ -89,7 +85,6 @@
     margin-bottom: 20px;
   }
 
-  /* メインタイトル */
   .tap-title {
     font-family: 'Noto Serif JP', serif;
     font-size: clamp(28px, 7vw, 48px);
@@ -108,7 +103,6 @@
     margin-bottom: 56px;
   }
 
-  /* タップボタン */
   .tap-btn {
     display: flex;
     flex-direction: column;
@@ -151,7 +145,6 @@
     color: rgba(255,255,255,0.5);
   }
 
-  /* 下部装飾 */
   .tap-footer {
     position: absolute;
     bottom: 28px;
@@ -199,7 +192,8 @@
     object-fit: cover;
     object-position: center top;
     filter: brightness(0.32) saturate(0.6);
-    animation: introPan 12s ease forwards;
+    /* ★ pan アニメを長めに：イントロ全体（13s）に合わせる */
+    animation: introPan 13s ease forwards;
   }
   .intro-overlay {
     position: absolute;
@@ -241,8 +235,30 @@
     position: absolute; text-align: center;
     padding: 0 32px; width: 100%; max-width: 560px; opacity: 0;
   }
-  .intro-msg-1 { animation: msgIn 3.8s ease 1.0s forwards; }
-  .intro-msg-2 { animation: msgIn 3.8s ease 5.4s forwards; }
+
+  /*
+   * ★ タイミング修正
+   *
+   * msg-1: delay=0.8s, duration=5.5s
+   *   → フェードイン: 0.8s〜1.5s（0.7s）
+   *   → 表示キープ:   1.5s〜5.3s
+   *   → フェードアウト: 5.3s〜6.3s（1.0s）
+   *   → 終了: 0.8+5.5 = 6.3s
+   *
+   * msg-2: delay=6.0s, duration=6.5s
+   *   → フェードイン: 6.0s〜6.8s（0.8s）★ msg-1終了(6.3s)と0.3s重なる→自然なクロス
+   *   → 表示キープ:   6.8s〜11.5s
+   *   → フェードアウト: 11.5s〜12.5s（1.0s）
+   *   → 終了: 6.0+6.5 = 12.5s
+   *
+   * イントロ自動終了: JS側で 13000ms 後 → 余裕をもって消える
+   */
+  .intro-msg-1 {
+    animation: msg1Anim 5.5s ease 0.8s forwards;
+  }
+  .intro-msg-2 {
+    animation: msg2Anim 6.5s ease 6.0s forwards;
+  }
 
   .intro-eyebrow {
     display: block; font-size: 10px; letter-spacing: 0.4em;
@@ -283,12 +299,23 @@
     0%   { transform: scale(1.1) translateY(0px); }
     100% { transform: scale(1.0) translateY(-24px); }
   }
-  @keyframes msgIn {
+
+  /* msg-1: フェードイン → キープ → フェードアウト */
+  @keyframes msg1Anim {
     0%   { opacity: 0; transform: translateY(20px); }
-    12%  { opacity: 1; transform: translateY(0); }
-    75%  { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-12px); }
+    13%  { opacity: 1; transform: translateY(0); }      /* ~0.7s でフェードイン完了 */
+    82%  { opacity: 1; transform: translateY(0); }      /* 5.5×0.82=4.5s まで表示 */
+    100% { opacity: 0; transform: translateY(-12px); }  /* 残り1.0s でフェードアウト */
   }
+
+  /* msg-2: フェードイン → キープ → フェードアウト */
+  @keyframes msg2Anim {
+    0%   { opacity: 0; transform: translateY(20px); }
+    12%  { opacity: 1; transform: translateY(0); }      /* ~0.8s でフェードイン完了 */
+    83%  { opacity: 1; transform: translateY(0); }      /* 6.5×0.83=5.4s まで表示 */
+    100% { opacity: 0; transform: translateY(-12px); }  /* 残り1.1s でフェードアウト */
+  }
+
   @keyframes hlineExpand {
     from { width: 0; }
     to   { width: min(300px, 70vw); }
@@ -599,26 +626,33 @@
 
   audio.volume = 0.5;
 
+  let introTimer = null;
+
   // ① タップスタート → BGM再生 → イントロへ
   function startExperience() {
-    // BGMをここで再生（ユーザー操作直後なので確実に鳴る）
     audio.play().catch(() => {});
 
     // タップ画面フェードアウト
     tapEl.classList.add('hidden');
     setTimeout(() => { tapEl.style.display = 'none'; }, 900);
 
-    // イントロ表示
+    // イントロ表示（少し待ってフェードイン）
     setTimeout(() => {
       introEl.classList.add('active');
     }, 400);
 
-    // イントロ自動終了（9.5秒後）
-    setTimeout(endIntro, 400 + 9500);
+    /*
+     * ★ 自動終了タイミング修正
+     * イントロ表示開始(400ms後)から、
+     * msg-2 が完全に消える 12.5s + 余裕 0.8s = 13.3s 後に終了
+     * → タップからは 400 + 13300 = 13700ms
+     */
+    introTimer = setTimeout(endIntro, 400 + 13300);
   }
 
   // ② イントロ終了 → メインコンテンツへ
   function endIntro() {
+    if (introTimer) { clearTimeout(introTimer); introTimer = null; }
     introEl.classList.remove('active');
     introEl.classList.add('hidden');
     mainEl.classList.add('visible');
