@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="６年生を送る会">
+<meta property="og:description" content="３月１日（日）9:15〜 押切小学校体育館">
+<title>６年生を送る会 | バスケサークル</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --orange: #E85D26;
+    --navy: #0D1B3E;
+    --cream: #FDF6EC;
+    --gold: #D4A847;
+    --light: #F5EFE6;
+  }
+  body {
+    background: var(--navy);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ════════════════════════════
+     タップスタート画面
+  ════════════════════════════ */
+  #tap-start {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: var(--navy);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.8s ease;
+  }
+  #tap-start.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* 背景：集合写真うっすら */
+  .tap-bg {
+    position: absolute;
+    inset: 0;
+    background: url('1.JPG') center center / cover no-repeat;
+    opacity: 0.12;
+    filter: saturate(0.4);
+  }
+  .tap-bg-grad {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% 50%,
+      rgba(13,27,62,0.4) 0%,
+      rgba(13,27,62,0.92) 70%,
+      var(--navy) 100%);
+  }
+
+  /* コンテンツ */
+  .tap-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 0 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* バスケボールアイコン（パルスアニメ） */
+  .tap-ball {
+    font-size: 52px;
+    margin-bottom: 32px;
+    animation: ballBounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 8px 24px rgba(232,93,38,0.4));
+  }
+
+  /* サブタイトル */
+  .tap-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  /* メインタイトル */
+  .tap-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(28px, 7vw, 48px);
+    font-weight: 900;
+    color: white;
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .tap-title span { color: var(--orange); }
+
+  .tap-subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.08em;
+    margin-bottom: 56px;
+  }
+
+  /* タップボタン */
+  .tap-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .tap-btn-circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(212,168,71,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  .tap-btn-circle::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px solid rgba(212,168,71,0.2);
+    animation: pulse 2.4s ease-in-out 0.4s infinite;
+  }
+  .tap-btn-circle::after {
+    content: '';
+    position: absolute;
+    inset: -18px;
+    border-radius: 50%;
+    border: 1px solid rgba(212,168,71,0.1);
+    animation: pulse 2.4s ease-in-out 0.8s infinite;
+  }
+  .tap-btn-icon {
+    font-size: 26px;
+    color: var(--gold);
+  }
+  .tap-btn-text {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* 下部装飾 */
+  .tap-footer {
+    position: absolute;
+    bottom: 28px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.18);
+    z-index: 2;
+  }
+
+  @keyframes ballBounce {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-10px); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(1.05); }
+  }
+
+  /* ════════════════════════════
+     イントロ オーバーレイ
+  ════════════════════════════ */
+  #intro {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    overflow: hidden;
+    background: #000;
+    transition: opacity 1.2s ease;
+    opacity: 0;
+    pointer-events: none;
+  }
+  #intro.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  #intro.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .intro-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    filter: brightness(0.32) saturate(0.6);
+    animation: introPan 12s ease forwards;
+  }
+  .intro-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom,
+        rgba(0,0,0,0.25) 0%,
+        rgba(0,0,0,0.05) 35%,
+        rgba(0,0,0,0.55) 75%,
+        rgba(0,0,0,0.88) 100%);
+  }
+  .intro-logo {
+    position: absolute; top: 24px; left: 24px; z-index: 2;
+    font-size: 10px; letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.3);
+    animation: fadeIn 1.2s ease 0.5s both;
+  }
+  .intro-club {
+    position: absolute; bottom: 28px; right: 24px; z-index: 2;
+    font-size: 10px; letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.2);
+    animation: fadeIn 1.2s ease 1s both;
+  }
+  .intro-hline {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2; width: 0; height: 1px;
+    background: rgba(212,168,71,0.4);
+  }
+  .intro-hline.top    { margin-top: -60px; animation: hlineExpand 0.8s ease 0.3s forwards; }
+  .intro-hline.bottom { margin-top:  60px; animation: hlineExpand 0.8s ease 0.5s forwards; }
+
+  .intro-stage {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 3;
+  }
+  .intro-msg {
+    position: absolute; text-align: center;
+    padding: 0 32px; width: 100%; max-width: 560px; opacity: 0;
+  }
+  .intro-msg-1 { animation: msgIn 3.8s ease 1.0s forwards; }
+  .intro-msg-2 { animation: msgIn 3.8s ease 5.4s forwards; }
+
+  .intro-eyebrow {
+    display: block; font-size: 10px; letter-spacing: 0.4em;
+    color: var(--gold); font-weight: 700; margin-bottom: 18px;
+  }
+  .intro-main {
+    display: block;
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(24px, 6vw, 42px); font-weight: 900;
+    color: #fff; line-height: 1.65;
+    text-shadow: 0 4px 40px rgba(0,0,0,0.7); letter-spacing: 0.06em;
+  }
+  .intro-main em { font-style: normal; color: var(--gold); }
+  .intro-sub {
+    display: block; font-size: clamp(11px, 2.5vw, 14px);
+    color: rgba(255,255,255,0.5); margin-top: 16px;
+    letter-spacing: 0.1em; font-weight: 300;
+  }
+
+  .intro-skip {
+    position: absolute; bottom: 32px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 4; display: flex; flex-direction: column;
+    align-items: center; gap: 10px; cursor: pointer;
+    animation: fadeIn 1s ease 0.5s both;
+  }
+  .intro-skip-line {
+    width: 1px; height: 36px;
+    background: linear-gradient(to bottom, transparent, rgba(212,168,71,0.7));
+  }
+  .intro-skip-text {
+    font-size: 10px; letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.5); transition: color 0.2s;
+  }
+  .intro-skip:hover .intro-skip-text { color: rgba(255,255,255,0.8); }
+
+  @keyframes introPan {
+    0%   { transform: scale(1.1) translateY(0px); }
+    100% { transform: scale(1.0) translateY(-24px); }
+  }
+  @keyframes msgIn {
+    0%   { opacity: 0; transform: translateY(20px); }
+    12%  { opacity: 1; transform: translateY(0); }
+    75%  { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-12px); }
+  }
+  @keyframes hlineExpand {
+    from { width: 0; }
+    to   { width: min(300px, 70vw); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ════════════════════════════
+     メインコンテンツ
+  ════════════════════════════ */
+  #main-content {
+    opacity: 0;
+    transition: opacity 1s ease 0.2s;
+  }
+  #main-content.visible { opacity: 1; }
+
+  .bg-photo { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .bg-gym {
+    position: absolute; inset: 0;
+    background: url('1.JPG') center center / cover no-repeat;
+    opacity: 0.07;
+  }
+  .bg-overlay {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, var(--navy) 0%, rgba(13,27,62,0.85) 30%, rgba(13,27,62,0.85) 70%, var(--navy) 100%),
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(232,93,38,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 85% 80%, rgba(212,168,71,0.10) 0%, transparent 60%);
+  }
+  .court-lines {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; opacity: 0.035; z-index: 0;
+  }
+  .court-lines svg { width: 100%; height: 100%; }
+
+  .card { width: 100%; max-width: 100%; margin: 0 auto; padding: 20px 0 40px; position: relative; z-index: 1; }
+  .badge { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 16px 20px; }
+  .badge-line { flex: 1; height: 1px; background: rgba(212,168,71,0.4); }
+  .badge-text { font-size: 11px; letter-spacing: 0.25em; color: var(--gold); font-weight: 700; white-space: nowrap; }
+
+  .hero { background: var(--cream); padding: 0; position: relative; overflow: hidden; }
+  .hero-photo { width: 100%; height: 70vh; position: relative; overflow: hidden; }
+  .hero-photo-img {
+    width: 100%; height: 100%;
+    object-fit: contain; object-position: center center;
+    background: #0D1B3E;
+    filter: brightness(0.55) saturate(0.8);
+    transform: scale(1.05); transition: transform 8s ease;
+  }
+  .hero-photo-img.loaded { transform: scale(1.0); }
+  .hero-photo-grad {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--cream));
+  }
+  .hero-photo-label {
+    position: absolute; top: 14px; left: 20px;
+    background: var(--orange); color: white;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+    padding: 4px 12px; border-radius: 2px;
+  }
+
+  .hero-content { padding: 12px 32px 32px; position: relative; max-width: 700px; margin: 0 auto; }
+  .hero-content::before {
+    content: '🏀'; position: absolute; top: -10px; right: 10px;
+    font-size: 80px; opacity: 0.06; transform: rotate(15deg);
+  }
+  .title-ja { font-family: 'Noto Serif JP', serif; font-size: 30px; font-weight: 900; color: var(--navy); line-height: 1.3; margin-bottom: 6px; }
+  .title-ja span { color: var(--orange); }
+  .subtitle { font-size: 13px; color: #666; letter-spacing: 0.05em; margin-bottom: 24px; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-block { background: var(--light); border-radius: 4px; padding: 14px 16px; border-left: 3px solid var(--orange); }
+  .info-block.full { grid-column: 1 / -1; }
+  .info-label { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; color: var(--orange); margin-bottom: 4px; }
+  .info-value { font-size: 16px; font-weight: 700; color: var(--navy); line-height: 1.3; }
+  .info-value.small { font-size: 13px; }
+
+  .schedule-section { background: white; padding: 28px 32px; position: relative; overflow: hidden; }
+  .schedule-section .inner { max-width: 700px; margin: 0 auto; }
+  .schedule-section::after {
+    content: ''; position: absolute; bottom: 0; right: -20px;
+    width: 200px; height: 200px;
+    background: url('https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&q=80') center/cover no-repeat;
+    opacity: 0.04; border-radius: 50%; pointer-events: none; filter: grayscale(1);
+  }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.25em; color: var(--orange); margin-bottom: 16px; }
+  .schedule-list { display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 1; }
+  .schedule-item { display: flex; gap: 16px; align-items: flex-start; }
+  .schedule-time { font-size: 13px; font-weight: 700; color: var(--orange); min-width: 44px; padding-top: 2px; }
+  .schedule-content { font-size: 13px; color: var(--navy); line-height: 1.8; border-left: 2px solid #eee; padding-left: 12px; flex: 1; }
+  .schedule-item.accent .schedule-content { border-left-color: var(--gold); color: #666; }
+
+  .belong-section { background: var(--light); padding: 24px 32px; }
+  .belong-section .inner { max-width: 700px; margin: 0 auto; }
+  .belong-list { display: flex; flex-direction: column; gap: 8px; }
+  .belong-item { font-size: 13px; color: var(--navy); padding: 8px 12px; background: white; border-radius: 4px; border-left: 3px solid var(--navy); }
+
+  .message-section { position: relative; overflow: hidden; padding: 32px; background: var(--navy); }
+  .message-section .inner { max-width: 700px; margin: 0 auto; position: relative; z-index: 2; }
+  .message-bg { position: absolute; inset: 0; background: url('1.JPG') center center / cover no-repeat; opacity: 0.08; filter: grayscale(0.5); }
+  .message-section::before {
+    content: '"'; position: absolute; top: -10px; left: 20px;
+    font-size: 120px; color: var(--orange); opacity: 0.15;
+    font-family: serif; line-height: 1; z-index: 1;
+  }
+  .message-section .section-label { color: var(--gold); }
+  .message-text { font-family: 'Noto Serif JP', serif; font-size: 15px; line-height: 2; color: rgba(255,255,255,0.88); }
+  .number-decoration { display: flex; justify-content: flex-end; padding-top: 20px; }
+  .big-number { font-family: 'Noto Serif JP', serif; font-size: 72px; font-weight: 900; color: transparent; -webkit-text-stroke: 1px rgba(212,168,71,0.3); line-height: 1; }
+
+  .cta-section { background: var(--orange); padding: 28px 32px; }
+  .cta-section .inner { max-width: 700px; margin: 0 auto; }
+  .cta-text { font-size: 13px; color: rgba(255,255,255,0.9); line-height: 1.8; }
+  .cta-text strong { font-size: 15px; color: white; }
+  .organizer { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.25); font-size: 12px; color: rgba(255,255,255,0.75); letter-spacing: 0.05em; }
+
+  .bottom { text-align: center; padding: 24px 0 8px; }
+  .ball-icon { font-size: 24px; margin-bottom: 4px; }
+  .club-name { font-size: 11px; letter-spacing: 0.2em; color: rgba(255,255,255,0.35); }
+</style>
+</head>
+<body>
+
+<!-- ════ タップスタート画面 ════ -->
+<div id="tap-start" onclick="startExperience()">
+  <div class="tap-bg"></div>
+  <div class="tap-bg-grad"></div>
+
+  <div class="tap-content">
+    <div class="tap-ball">🏀</div>
+    <div class="tap-eyebrow">BASKETBALL CIRCLE · 2026</div>
+    <div class="tap-title">６年生を<br><span>送る会</span></div>
+    <div class="tap-subtitle">三川男子ミニバスケットボール</div>
+
+    <div class="tap-btn">
+      <div class="tap-btn-circle">
+        <div class="tap-btn-icon">▶</div>
+      </div>
+      <div class="tap-btn-text">招待状を開く</div>
+    </div>
+  </div>
+
+  <div class="tap-footer">画面をタップしてください</div>
+</div>
+
+<!-- ════ イントロ ════ -->
+<div id="intro">
+  <img class="intro-photo" src="1.JPG" alt="集合写真"
+    onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(160deg,#05111f,#0f2042)'"
+  >
+  <div class="intro-overlay"></div>
+  <div class="intro-hline top"></div>
+  <div class="intro-hline bottom"></div>
+  <div class="intro-logo">BASKETBALL CIRCLE · 2026</div>
+  <div class="intro-club">三川男子ミニバスケットボール</div>
+
+  <div class="intro-stage">
+    <div class="intro-msg intro-msg-1">
+      <span class="intro-eyebrow">— 今まで、ありがとう —</span>
+      <span class="intro-main">ともに戦い、<br>ともに笑った。</span>
+      <span class="intro-sub">あの体育館で過ごした日々は、一生の宝物。</span>
+    </div>
+    <div class="intro-msg intro-msg-2">
+      <span class="intro-eyebrow">— 卒業おめでとう —</span>
+      <span class="intro-main">みんなの<em>未来</em>に、<br>エールを贈ろう。</span>
+      <span class="intro-sub">これからも、どこかのコートで会おう。</span>
+    </div>
+  </div>
+
+  <div class="intro-skip" onclick="skipIntro()">
+    <div class="intro-skip-line"></div>
+    <div class="intro-skip-text">T A P  T O  S K I P</div>
+  </div>
+</div>
+
+<!-- ════ メインコンテンツ ════ -->
+<div id="main-content">
+  <div class="bg-photo">
+    <div class="bg-gym"></div>
+    <div class="bg-overlay"></div>
+  </div>
+  <div class="court-lines">
+    <svg viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
+      <circle cx="200" cy="400" r="60" fill="none" stroke="white" stroke-width="1.5"/>
+      <line x1="0" y1="400" x2="400" y2="400" stroke="white" stroke-width="1.5"/>
+      <rect x="120" y="640" width="160" height="100" fill="none" stroke="white" stroke-width="1.5"/>
+      <rect x="120" y="60" width="160" height="100" fill="none" stroke="white" stroke-width="1.5"/>
+      <circle cx="200" cy="740" r="20" fill="none" stroke="white" stroke-width="1.5"/>
+      <circle cx="200" cy="60" r="20" fill="none" stroke="white" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <div class="card">
+    <div class="badge">
+      <div class="badge-line"></div>
+      <div class="badge-text">BASKETBALL CIRCLE · 2026</div>
+      <div class="badge-line"></div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-photo">
+        <img class="hero-photo-img"
+          src="1.JPG" alt="集合写真"
+          onload="this.classList.add('loaded')"
+          onerror="this.parentElement.style.background='linear-gradient(135deg,#1a2f5e,#0D1B3E)'"
+        >
+        <div class="hero-photo-grad"></div>
+        <div class="hero-photo-label">ご招待</div>
+      </div>
+      <div class="hero-content">
+        <div class="title-ja">６年生を<br><span>送る会</span></div>
+        <div class="subtitle">卒業おめでとう！みんなで集まりましょう</div>
+        <div class="info-grid">
+          <div class="info-block">
+            <div class="info-label">DATE</div>
+            <div class="info-value">３月１日<br><span style="font-size:12px;font-weight:400;color:#666;">（日曜日）</span></div>
+          </div>
+          <div class="info-block">
+            <div class="info-label">TIME</div>
+            <div class="info-value">9:15〜<br><span style="font-size:12px;font-weight:400;color:#666;">11:30終了予定</span></div>
+          </div>
+          <div class="info-block full">
+            <div class="info-label">PLACE</div>
+            <div class="info-value small">押切小学校 体育館</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-section">
+      <div class="inner">
+        <div class="section-label">SCHEDULE</div>
+        <div class="schedule-list">
+          <div class="schedule-item"><div class="schedule-time">9:00</div><div class="schedule-content">５年生以下 集合</div></div>
+          <div class="schedule-item"><div class="schedule-time">9:15</div><div class="schedule-content">６年生 集合　<br>ラジオ体操</div></div>
+          <div class="schedule-item">
+            <div class="schedule-time">9:30〜</div>
+            <div class="schedule-content">
+              しっぽ取り競争（親子）<br>
+              子 vs 親 ドリブルリレー<br>
+              子 vs 親 ドッヂボール<br>
+              子 vs 親 ゲーム<br>
+              🏀 フリースロー大会<br>（上位３名へプレゼント！）<br>
+              🎉 ６年生へのセレモニー
+            </div>
+          </div>
+          <div class="schedule-item"><div class="schedule-time">11:30</div><div class="schedule-content">終了予定</div></div>
+          <div class="schedule-item accent"><div class="schedule-time">13:00</div><div class="schedule-content">打ち上げ 🍖 すたみな太郎（希望者）</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="belong-section">
+      <div class="inner">
+        <div class="section-label">持ち物</div>
+        <div class="belong-list">
+          <div class="belong-item">👟 バッシュ</div>
+          <div class="belong-item">🏳️ タオル　しっぽ取り用　<br>　（親も一緒にしますので親の分もご用意ください！）</div>
+          <div class="belong-item">🎽 ビブス</div>
+          <div class="belong-item">🥤 飲み物</div>
+          <div class="belong-item">🏀 団のボールケースやボール等</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="message-section">
+      <div class="message-bg"></div>
+      <div class="inner">
+        <div class="section-label">MESSAGE</div>
+        <div class="message-text">
+          ６年生のみなさん、卒業おめでとうございます。<br><br>
+          一緒にバスケを楽しんだ時間を振り返りながら、みなさんの新しい旅立ちをお祝いしたいと思います。<br><br>
+          保護者の皆さまも、ぜひ一緒に楽しみましょう！
+        </div>
+        <div class="number-decoration"><div class="big-number">#6</div></div>
+      </div>
+    </div>
+
+    <div class="cta-section">
+      <div class="inner">
+        <div class="cta-text">
+          <strong>保護者の皆さまへ</strong><br>
+          お子さまのご卒業、本当におめでとうございます。当日は子 vs 親の対戦もあります！ぜひバッシュを持って、一緒に楽しんでください🏀
+        </div>
+        <div class="organizer">主催：三川男子ミニバスケットボール</div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <div class="ball-icon">🏀</div>
+      <div class="club-name">BASKETBALL CIRCLE</div>
+    </div>
+  </div>
+</div>
+
+<audio id="bgm" loop preload="auto">
+  <source src="bgm.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  const audio   = document.getElementById('bgm');
+  const tapEl   = document.getElementById('tap-start');
+  const introEl = document.getElementById('intro');
+  const mainEl  = document.getElementById('main-content');
+
+  audio.volume = 0.5;
+
+  // ① タップスタート → BGM再生 → イントロへ
+  function startExperience() {
+    // BGMをここで再生（ユーザー操作直後なので確実に鳴る）
+    audio.play().catch(() => {});
+
+    // タップ画面フェードアウト
+    tapEl.classList.add('hidden');
+    setTimeout(() => { tapEl.style.display = 'none'; }, 900);
+
+    // イントロ表示
+    setTimeout(() => {
+      introEl.classList.add('active');
+    }, 400);
+
+    // イントロ自動終了（9.5秒後）
+    setTimeout(endIntro, 400 + 9500);
+  }
+
+  // ② イントロ終了 → メインコンテンツへ
+  function endIntro() {
+    introEl.classList.remove('active');
+    introEl.classList.add('hidden');
+    mainEl.classList.add('visible');
+    setTimeout(() => { introEl.style.display = 'none'; }, 1500);
+  }
+
+  function skipIntro() { endIntro(); }
+</script>
+</body>
+</html>
